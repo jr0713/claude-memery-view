@@ -4,10 +4,12 @@ const app = {
   state: {
     memories: [],
     activeType: 'all',
+    activeProject: 'all',
     searchTerm: '',
     viewMode: 'grid',
     selectedMemoryId: null,
-    config: null
+    config: null,
+    projects: []
   },
 
   // ── Init ───────────────────────────────────────────────
@@ -15,6 +17,7 @@ const app = {
   async init() {
     this.bindEvents();
     await this.loadConfig();
+    await this.loadProjects();
     await this.refresh();
     document.getElementById('loading-state').classList.add('hidden');
   },
@@ -23,12 +26,21 @@ const app = {
     try {
       this.state.config = await api.fetchConfig();
       const pathEl = document.getElementById('memory-path');
-      if (this.state.config && this.state.config.memoryDir) {
-        pathEl.textContent = this.state.config.memoryDir;
-        pathEl.title = this.state.config.memoryDir;
+      if (this.state.config && this.state.config.projectsDir) {
+        pathEl.textContent = this.state.config.projectsDir;
+        pathEl.title = this.state.config.projectsDir;
       }
     } catch (err) {
       components.showToast('配置加载失败', 'error');
+    }
+  },
+
+  async loadProjects() {
+    try {
+      const data = await api.fetchProjects();
+      this.state.projects = data.projects || [];
+    } catch (err) {
+      this.state.projects = [];
     }
   },
 
@@ -36,15 +48,28 @@ const app = {
     try {
       const params = { type: this.state.activeType };
       if (this.state.searchTerm) params.search = this.state.searchTerm;
+      if (this.state.activeProject && this.state.activeProject !== 'all') {
+        params.project = this.state.activeProject;
+      }
 
       const data = await api.fetchMemories(params);
       this.state.memories = data.memories;
 
-      // Update type counts (fetch all memories without type filter for accurate counts)
+      // Fetch all memories for accurate type/project counts
       const allData = await api.fetchMemories({});
       const typeCounts = {};
       allData.memories.forEach(m => {
         typeCounts[m.type] = (typeCounts[m.type] || 0) + 1;
+      });
+
+      // Update project memory counts
+      const projCounts = {};
+      allData.memories.forEach(m => {
+        projCounts[m.projectDir] = (projCounts[m.projectDir] || 0) + 1;
+      });
+      // Update the projects list with fresh counts
+      this.state.projects.forEach(p => {
+        p.memoryCount = projCounts[p.projectDir] || 0;
       });
 
       this.render(typeCounts);
@@ -55,13 +80,15 @@ const app = {
 
   render(typeCounts) {
     this._lastTypeCounts = typeCounts;
-    const { memories, activeType, viewMode } = this.state;
+    const { memories, activeType, activeProject, viewMode, projects } = this.state;
 
     // Filters
     components.renderFilters(typeCounts, activeType);
+    components.renderProjectFilters(projects, activeProject);
 
     // Stats
-    components.renderStats(memories);
+    const totalMemories = Object.values(typeCounts).reduce((a, b) => a + b, 0);
+    components.renderStats(memories, projects.length);
 
     // Views
     const emptyState = document.getElementById('empty-state');
@@ -75,16 +102,12 @@ const app = {
     graphContainer.classList.add('hidden');
     components.stopGraph();
 
-    const totalMemories = Object.values(typeCounts).reduce((a, b) => a + b, 0);
-
     if (totalMemories === 0 && !this.state.searchTerm) {
-      // Show empty state only when no memories exist AND no search active
       emptyState.classList.remove('hidden');
     } else {
       emptyState.classList.add('hidden');
 
       if (memories.length === 0 && this.state.searchTerm) {
-        // Show "no results" in the grid
         grid.classList.remove('hidden');
         components.renderCards([]);
         return;
@@ -134,7 +157,8 @@ const app = {
 
     try {
       if (mode === 'create') {
-        await api.createMemory({ name, description, type, content });
+        const projectDir = this.state.activeProject !== 'all' ? this.state.activeProject : null;
+        await api.createMemory({ name, description, type, content, projectDir });
         components.showToast('记忆创建成功！', 'success');
       } else {
         const id = overlay.dataset.id;
@@ -142,6 +166,7 @@ const app = {
         components.showToast('记忆更新成功！', 'success');
       }
       components.closeModal();
+      await this.loadProjects();
       await this.refresh();
     } catch (err) {
       components.showToast('保存失败: ' + err.message, 'error');
@@ -158,6 +183,7 @@ const app = {
       components.showToast(`"${name}" 已删除`, 'success');
       components.closeModal();
       components.closeConfirmDelete();
+      await this.loadProjects();
       await this.refresh();
     } catch (err) {
       components.showToast('删除失败: ' + err.message, 'error');
@@ -167,19 +193,16 @@ const app = {
   // ── Navigation ─────────────────────────────────────────
 
   highlightAndScroll(id) {
-    // Switch to grid view if in graph view
     if (this.state.viewMode === 'graph') {
       this.state.viewMode = 'grid';
       document.querySelectorAll('.view-toggle').forEach(t => t.classList.remove('active'));
       document.querySelector('.view-toggle[data-view="grid"]').classList.add('active');
     }
 
-    // Refresh to ensure grid is shown
     this.render(this._lastTypeCounts || {});
 
-    // Find and highlight the card
     setTimeout(() => {
-      const card = document.querySelector(`.memory-card[data-id="${id}"]`);
+      const card = document.querySelector(`.memory-card[data-id="${CSS.escape(id)}"]`);
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
         card.classList.add('highlight');
@@ -207,7 +230,6 @@ const app = {
       this.refresh();
     }, 300));
 
-    // Clear search on Escape
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         searchInput.value = '';
@@ -221,6 +243,14 @@ const app = {
       const chip = e.target.closest('.type-chip');
       if (!chip) return;
       this.state.activeType = chip.dataset.type;
+      this.refresh();
+    });
+
+    // Project filters
+    document.getElementById('project-filters').addEventListener('click', (e) => {
+      const chip = e.target.closest('.type-chip');
+      if (!chip) return;
+      this.state.activeProject = chip.dataset.project;
       this.refresh();
     });
 
@@ -276,12 +306,10 @@ const app = {
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-      // Ctrl+N: New memory
       if (e.ctrlKey && e.key === 'n') {
         e.preventDefault();
         components.openModal(null);
       }
-      // Escape: Close modal
       if (e.key === 'Escape') {
         const overlay = document.getElementById('modal-overlay');
         const confirmOverlay = document.getElementById('confirm-overlay');
@@ -291,7 +319,6 @@ const app = {
           components.closeModal();
         }
       }
-      // Ctrl+S: Save in modal
       if (e.ctrlKey && e.key === 's') {
         const overlay = document.getElementById('modal-overlay');
         if (!overlay.classList.contains('hidden')) {

@@ -14,7 +14,7 @@
   <header class="header">
     <div class="header-left">
       <h1 class="logo">🧠 <span>记忆管理器</span></h1>
-      <span class="memory-path" id="memory-path">加载中...</span>
+      <span class="memory-path" id="memory-path">扫描项目中...</span>
     </div>
     <div class="header-right">
       <button class="btn btn-primary" id="btn-new-memory" title="新建记忆 (Ctrl+N)">
@@ -70,6 +70,16 @@
       </div>
 
       <div class="sidebar-section">
+        <h3 class="sidebar-title">按项目筛选</h3>
+        <div class="project-filters" id="project-filters">
+          <button class="type-chip active" data-project="all">
+            <span class="chip-label">全部项目</span>
+            <span class="chip-count" id="proj-count-all">0</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
         <h3 class="sidebar-title">视图模式</h3>
         <div class="view-toggles">
           <button class="view-toggle active" data-view="grid" title="网格视图">
@@ -104,11 +114,15 @@
         <div class="stats-box">
           <div class="stat">
             <span class="stat-value" id="stat-total">0</span>
-            <span class="stat-label">总计</span>
+            <span class="stat-label">总记忆</span>
           </div>
           <div class="stat">
             <span class="stat-value" id="stat-links">0</span>
             <span class="stat-label">链接</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-projects">0</span>
+            <span class="stat-label">项目</span>
           </div>
         </div>
       </div>

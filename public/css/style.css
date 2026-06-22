@@ -493,6 +493,19 @@ input, select, textarea, button {
 
 .card-path-icon { flex-shrink: 0; }
 
+.card-project {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
 .card-links {
   display: flex;
   flex-wrap: wrap;

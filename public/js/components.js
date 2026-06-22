@@ -41,6 +41,8 @@ const components = {
       const typeNames = { project: '项目', user: '用户', feedback: '反馈', reference: '参考', unknown: '未知' };
       const typeClass = `badge-${mem.type}`;
       const typeLabel = typeNames[mem.type] || mem.type;
+
+      const linkChips = (mem.resolvedLinks || []).map(link => {
         const cls = link.exists ? 'link-chip' : 'link-chip dangling';
         const title = link.exists ? `跳转到 "${link.name}"` : `"${link.name}" 未找到（悬空链接）`;
         return `<span class="${cls}" data-link-id="${link.id || ''}" data-link-name="${escapeHtml(link.name)}" title="${escapeHtml(title)}">${escapeHtml(truncate(link.name, 25))}</span>`;
@@ -59,6 +61,12 @@ const components = {
         ${mem.description ? `<div class="card-description">${escapeHtml(mem.description)}</div>` : ''}
         ${mem.preview ? `<div class="card-preview">${escapeHtml(mem.preview)}</div>` : ''}
         <div class="card-footer">
+          <div class="card-project" title="项目: ${escapeHtml(mem.projectName || '')}">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="color:var(--accent);flex-shrink:0">
+              <path d="M1 2.5A1.5 1.5 0 012.5 1h2.586a1.5 1.5 0 011.06.44L7.5 2.8a.5.5 0 00.38.19H9.5A1.5 1.5 0 0111 4.5v5A1.5 1.5 0 019.5 11h-7A1.5 1.5 0 011 9.5v-7z"/>
+            </svg>
+            ${escapeHtml(mem.projectName || mem.projectDir || '')}
+          </div>
           <div class="card-path" title="${escapeHtml(mem.filePath || '')}">
             <svg class="card-path-icon" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="color:var(--text-muted)">
               <path d="M2 1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V4.5a1 1 0 00-.293-.707L8.207 1.293A1 1 0 007.5 1H2z"/>
@@ -148,12 +156,40 @@ const components = {
     });
   },
 
+  // ── Render Project Filters ─────────────────────────────
+
+  renderProjectFilters(projects, activeProject) {
+    const container = document.getElementById('project-filters');
+    if (!projects || projects.length === 0) {
+      container.innerHTML = '<span style="font-size:12px;color:var(--text-muted);padding:8px">未找到项目</span>';
+      return;
+    }
+
+    let html = `
+      <button class="type-chip ${activeProject === 'all' ? 'active' : ''}" data-project="all">
+        <span class="chip-label">全部项目</span>
+        <span class="chip-count" id="proj-count-all">${projects.reduce((s, p) => s + p.memoryCount, 0)}</span>
+      </button>`;
+
+    projects.forEach(proj => {
+      const active = activeProject === proj.projectDir ? ' active' : '';
+      html += `
+        <button class="type-chip${active}" data-project="${escapeHtml(proj.projectDir)}" title="${escapeHtml(proj.projectDir)}">
+          <span class="chip-label">${escapeHtml(truncate(proj.projectName, 18))}</span>
+          <span class="chip-count">${proj.memoryCount}</span>
+        </button>`;
+    });
+
+    container.innerHTML = html;
+  },
+
   // ── Render Stats ───────────────────────────────────────
 
-  renderStats(memories) {
+  renderStats(memories, projectCount) {
     document.getElementById('stat-total').textContent = memories.length;
     const totalLinks = memories.reduce((sum, m) => sum + (m.resolvedLinks || []).filter(l => l.exists).length, 0);
     document.getElementById('stat-links').textContent = totalLinks;
+    document.getElementById('stat-projects').textContent = projectCount || 0;
   },
 
   // ── Open Modal (Create / Edit) ─────────────────────────
@@ -188,6 +224,7 @@ const components = {
       typeSelect.value = memory.type || 'project';
       contentInput.value = memory.content || '';
       fileInfo.innerHTML = `
+        <span style="color:var(--accent)">📁 ${escapeHtml(memory.projectName || '')}</span> &nbsp;
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="vertical-align:middle"><path d="M2 1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V4.5a1 1 0 00-.293-.707L8.207 1.293A1 1 0 007.5 1H2z"/></svg>
         ${escapeHtml(memory.filePath || '')}
       `;

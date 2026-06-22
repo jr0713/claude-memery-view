@@ -5,6 +5,7 @@ const api = {
     const query = new URLSearchParams();
     if (params.search) query.set('search', params.search);
     if (params.type && params.type !== 'all') query.set('type', params.type);
+    if (params.project && params.project !== 'all') query.set('project', params.project);
     const qs = query.toString();
     const url = '/api/memories' + (qs ? '?' + qs : '');
     const res = await fetch(url);
@@ -70,6 +71,12 @@ const api = {
   async fetchConfig() {
     const res = await fetch('/api/config');
     if (!res.ok) throw new Error('Failed to fetch config');
+    return res.json();
+  },
+
+  async fetchProjects() {
+    const res = await fetch('/api/projects');
+    if (!res.ok) throw new Error('Failed to fetch projects');
     return res.json();
   }
 };
