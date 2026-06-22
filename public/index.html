@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Memory Manager</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <h1 class="logo">🧠 <span>Memory Manager</span></h1>
+      <span class="memory-path" id="memory-path">Loading...</span>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-primary" id="btn-new-memory" title="Create new memory (Ctrl+N)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 1a1 1 0 011 1v5h5a1 1 0 110 2H9v5a1 1 0 11-2 0V9H2a1 1 0 010-2h5V2a1 1 0 011-1z"/>
+        </svg>
+        New Memory
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="search-box">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h-.001l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85-.017.016zm-5.242.156a5 5 0 110-10 5 5 0 010 10z"/>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search memories..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Filter by Type</h3>
+        <div class="type-filters" id="type-filters">
+          <button class="type-chip active" data-type="all">
+            <span class="chip-label">All</span>
+            <span class="chip-count" id="count-all">0</span>
+          </button>
+          <button class="type-chip" data-type="project">
+            <span class="chip-dot dot-project"></span>
+            <span class="chip-label">Project</span>
+            <span class="chip-count" id="count-project">0</span>
+          </button>
+          <button class="type-chip" data-type="user">
+            <span class="chip-dot dot-user"></span>
+            <span class="chip-label">User</span>
+            <span class="chip-count" id="count-user">0</span>
+          </button>
+          <button class="type-chip" data-type="feedback">
+            <span class="chip-dot dot-feedback"></span>
+            <span class="chip-label">Feedback</span>
+            <span class="chip-count" id="count-feedback">0</span>
+          </button>
+          <button class="type-chip" data-type="reference">
+            <span class="chip-dot dot-reference"></span>
+            <span class="chip-label">Reference</span>
+            <span class="chip-count" id="count-reference">0</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">View Mode</h3>
+        <div class="view-toggles">
+          <button class="view-toggle active" data-view="grid" title="Grid View">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <rect x="1" y="1" width="6" height="6" rx="1"/>
+              <rect x="9" y="1" width="6" height="6" rx="1"/>
+              <rect x="1" y="9" width="6" height="6" rx="1"/>
+              <rect x="9" y="9" width="6" height="6" rx="1"/>
+            </svg>
+          </button>
+          <button class="view-toggle" data-view="list" title="List View">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <rect x="1" y="2" width="14" height="3" rx="1"/>
+              <rect x="1" y="7" width="14" height="3" rx="1"/>
+              <rect x="1" y="12" width="14" height="3" rx="1"/>
+            </svg>
+          </button>
+          <button class="view-toggle" data-view="graph" title="Graph View">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="4" cy="4" r="2.5"/>
+              <circle cx="12" cy="4" r="2.5"/>
+              <circle cx="8" cy="12" r="2.5"/>
+              <line x1="6" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="5.5" y1="6.5" x2="7" y2="10" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="10.5" y1="6.5" x2="9" y2="10" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section" id="sidebar-stats">
+        <div class="stats-box">
+          <div class="stat">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-links">0</span>
+            <span class="stat-label">Links</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📭</div>
+        <h2>No Memories Yet</h2>
+        <p>Create your first memory to get started. Memories help Claude remember important information across sessions.</p>
+        <button class="btn btn-primary btn-lg" id="btn-empty-create">Create First Memory</button>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        <p>Loading memories...</p>
+      </div>
+
+      <!-- Grid View -->
+      <div class="memories-grid" id="memories-grid"></div>
+
+      <!-- List View -->
+      <div class="memories-list hidden" id="memories-list"></div>
+
+      <!-- Graph View -->
+      <div class="graph-container hidden" id="graph-container">
+        <canvas id="graph-canvas"></canvas>
+        <div class="graph-tooltip hidden" id="graph-tooltip"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Memory Edit Modal -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Edit Memory</h2>
+        <button class="btn-icon" id="btn-modal-close" title="Close (Escape)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="input-name">Name</label>
+            <input type="text" id="input-name" placeholder="Memory name" autocomplete="off">
+          </div>
+          <div class="form-group flex-1">
+            <label for="input-type">Type</label>
+            <select id="input-type">
+              <option value="project">Project</option>
+              <option value="user">User</option>
+              <option value="feedback">Feedback</option>
+              <option value="reference">Reference</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="input-description">Description</label>
+          <input type="text" id="input-description" placeholder="Brief description" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <div class="editor-tabs">
+            <button class="editor-tab active" data-tab="edit">Edit</button>
+            <button class="editor-tab" data-tab="preview">Preview</button>
+          </div>
+          <textarea id="input-content" rows="12" placeholder="Write your memory content in Markdown...&#10;&#10;Use [[memory-name]] to link to other memories."></textarea>
+          <div class="markdown-preview hidden" id="markdown-preview"></div>
+        </div>
+        <div class="form-info" id="form-file-info"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btn-delete" title="Delete this memory">Delete</button>
+        <div class="modal-footer-right">
+          <button class="btn btn-secondary" id="btn-cancel">Cancel</button>
+          <button class="btn btn-primary" id="btn-save" title="Save (Ctrl+S)">Save Memory</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay hidden" id="confirm-overlay">
+    <div class="modal modal-sm" id="confirm-modal">
+      <div class="modal-header">
+        <h2>Delete Memory?</h2>
+      </div>
+      <div class="modal-body">
+        <p class="confirm-text">Are you sure you want to delete "<strong id="confirm-name"></strong>"? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-confirm-cancel">Cancel</button>
+        <button class="btn btn-danger" id="btn-confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
