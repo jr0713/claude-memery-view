@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude Memory Manager</title>
+  <title>Claude 记忆管理器</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -13,15 +13,15 @@
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <h1 class="logo">🧠 <span>Memory Manager</span></h1>
-      <span class="memory-path" id="memory-path">Loading...</span>
+      <h1 class="logo">🧠 <span>记忆管理器</span></h1>
+      <span class="memory-path" id="memory-path">加载中...</span>
     </div>
     <div class="header-right">
-      <button class="btn btn-primary" id="btn-new-memory" title="Create new memory (Ctrl+N)">
+      <button class="btn btn-primary" id="btn-new-memory" title="新建记忆 (Ctrl+N)">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 1a1 1 0 011 1v5h5a1 1 0 110 2H9v5a1 1 0 11-2 0V9H2a1 1 0 010-2h5V2a1 1 0 011-1z"/>
         </svg>
-        New Memory
+        新建记忆
       </button>
     </div>
   </header>
@@ -35,44 +35,44 @@
           <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h-.001l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85-.017.016zm-5.242.156a5 5 0 110-10 5 5 0 010 10z"/>
           </svg>
-          <input type="text" id="search-input" placeholder="Search memories..." autocomplete="off">
+          <input type="text" id="search-input" placeholder="搜索记忆..." autocomplete="off">
         </div>
       </div>
 
       <div class="sidebar-section">
-        <h3 class="sidebar-title">Filter by Type</h3>
+        <h3 class="sidebar-title">按类型筛选</h3>
         <div class="type-filters" id="type-filters">
           <button class="type-chip active" data-type="all">
-            <span class="chip-label">All</span>
+            <span class="chip-label">全部</span>
             <span class="chip-count" id="count-all">0</span>
           </button>
           <button class="type-chip" data-type="project">
             <span class="chip-dot dot-project"></span>
-            <span class="chip-label">Project</span>
+            <span class="chip-label">项目</span>
             <span class="chip-count" id="count-project">0</span>
           </button>
           <button class="type-chip" data-type="user">
             <span class="chip-dot dot-user"></span>
-            <span class="chip-label">User</span>
+            <span class="chip-label">用户</span>
             <span class="chip-count" id="count-user">0</span>
           </button>
           <button class="type-chip" data-type="feedback">
             <span class="chip-dot dot-feedback"></span>
-            <span class="chip-label">Feedback</span>
+            <span class="chip-label">反馈</span>
             <span class="chip-count" id="count-feedback">0</span>
           </button>
           <button class="type-chip" data-type="reference">
             <span class="chip-dot dot-reference"></span>
-            <span class="chip-label">Reference</span>
+            <span class="chip-label">参考</span>
             <span class="chip-count" id="count-reference">0</span>
           </button>
         </div>
       </div>
 
       <div class="sidebar-section">
-        <h3 class="sidebar-title">View Mode</h3>
+        <h3 class="sidebar-title">视图模式</h3>
         <div class="view-toggles">
-          <button class="view-toggle active" data-view="grid" title="Grid View">
+          <button class="view-toggle active" data-view="grid" title="网格视图">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <rect x="1" y="1" width="6" height="6" rx="1"/>
               <rect x="9" y="1" width="6" height="6" rx="1"/>
@@ -80,14 +80,14 @@
               <rect x="9" y="9" width="6" height="6" rx="1"/>
             </svg>
           </button>
-          <button class="view-toggle" data-view="list" title="List View">
+          <button class="view-toggle" data-view="list" title="列表视图">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <rect x="1" y="2" width="14" height="3" rx="1"/>
               <rect x="1" y="7" width="14" height="3" rx="1"/>
               <rect x="1" y="12" width="14" height="3" rx="1"/>
             </svg>
           </button>
-          <button class="view-toggle" data-view="graph" title="Graph View">
+          <button class="view-toggle" data-view="graph" title="关系图谱">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <circle cx="4" cy="4" r="2.5"/>
               <circle cx="12" cy="4" r="2.5"/>
@@ -104,11 +104,11 @@
         <div class="stats-box">
           <div class="stat">
             <span class="stat-value" id="stat-total">0</span>
-            <span class="stat-label">Total</span>
+            <span class="stat-label">总计</span>
           </div>
           <div class="stat">
             <span class="stat-value" id="stat-links">0</span>
-            <span class="stat-label">Links</span>
+            <span class="stat-label">链接</span>
           </div>
         </div>
       </div>
@@ -119,15 +119,15 @@
       <!-- Empty State -->
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">📭</div>
-        <h2>No Memories Yet</h2>
-        <p>Create your first memory to get started. Memories help Claude remember important information across sessions.</p>
-        <button class="btn btn-primary btn-lg" id="btn-empty-create">Create First Memory</button>
+        <h2>暂无记忆</h2>
+        <p>创建你的第一条记忆，让 Claude 在跨会话中记住重要信息。</p>
+        <button class="btn btn-primary btn-lg" id="btn-empty-create">创建第一条记忆</button>
       </div>
 
       <!-- Loading State -->
       <div class="loading-state" id="loading-state">
         <div class="spinner"></div>
-        <p>Loading memories...</p>
+        <p>加载记忆中...</p>
       </div>
 
       <!-- Grid View -->
@@ -148,8 +148,8 @@
   <div class="modal-overlay hidden" id="modal-overlay">
     <div class="modal" id="modal">
       <div class="modal-header">
-        <h2 id="modal-title">Edit Memory</h2>
-        <button class="btn-icon" id="btn-modal-close" title="Close (Escape)">
+        <h2 id="modal-title">编辑记忆</h2>
+        <button class="btn-icon" id="btn-modal-close" title="关闭 (Esc)">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>
           </svg>
@@ -158,38 +158,38 @@
       <div class="modal-body">
         <div class="form-row">
           <div class="form-group flex-2">
-            <label for="input-name">Name</label>
-            <input type="text" id="input-name" placeholder="Memory name" autocomplete="off">
+            <label for="input-name">名称</label>
+            <input type="text" id="input-name" placeholder="记忆名称" autocomplete="off">
           </div>
           <div class="form-group flex-1">
-            <label for="input-type">Type</label>
+            <label for="input-type">类型</label>
             <select id="input-type">
-              <option value="project">Project</option>
-              <option value="user">User</option>
-              <option value="feedback">Feedback</option>
-              <option value="reference">Reference</option>
+              <option value="project">项目</option>
+              <option value="user">用户</option>
+              <option value="feedback">反馈</option>
+              <option value="reference">参考</option>
             </select>
           </div>
         </div>
         <div class="form-group">
-          <label for="input-description">Description</label>
-          <input type="text" id="input-description" placeholder="Brief description" autocomplete="off">
+          <label for="input-description">描述</label>
+          <input type="text" id="input-description" placeholder="简要描述" autocomplete="off">
         </div>
         <div class="form-group">
           <div class="editor-tabs">
-            <button class="editor-tab active" data-tab="edit">Edit</button>
-            <button class="editor-tab" data-tab="preview">Preview</button>
+            <button class="editor-tab active" data-tab="edit">编辑</button>
+            <button class="editor-tab" data-tab="preview">预览</button>
           </div>
-          <textarea id="input-content" rows="12" placeholder="Write your memory content in Markdown...&#10;&#10;Use [[memory-name]] to link to other memories."></textarea>
+          <textarea id="input-content" rows="12" placeholder="使用 Markdown 编写记忆内容...&#10;&#10;使用 [[记忆名称]] 链接到其他记忆。"></textarea>
           <div class="markdown-preview hidden" id="markdown-preview"></div>
         </div>
         <div class="form-info" id="form-file-info"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-danger" id="btn-delete" title="Delete this memory">Delete</button>
+        <button class="btn btn-danger" id="btn-delete" title="删除此记忆">删除</button>
         <div class="modal-footer-right">
-          <button class="btn btn-secondary" id="btn-cancel">Cancel</button>
-          <button class="btn btn-primary" id="btn-save" title="Save (Ctrl+S)">Save Memory</button>
+          <button class="btn btn-secondary" id="btn-cancel">取消</button>
+          <button class="btn btn-primary" id="btn-save" title="保存 (Ctrl+S)">保存记忆</button>
         </div>
       </div>
     </div>
@@ -199,14 +199,14 @@
   <div class="modal-overlay hidden" id="confirm-overlay">
     <div class="modal modal-sm" id="confirm-modal">
       <div class="modal-header">
-        <h2>Delete Memory?</h2>
+        <h2>确认删除？</h2>
       </div>
       <div class="modal-body">
-        <p class="confirm-text">Are you sure you want to delete "<strong id="confirm-name"></strong>"? This action cannot be undone.</p>
+        <p class="confirm-text">确定要删除 "<strong id="confirm-name"></strong>" 吗？此操作不可撤销。</p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" id="btn-confirm-cancel">Cancel</button>
-        <button class="btn btn-danger" id="btn-confirm-delete">Delete</button>
+        <button class="btn btn-secondary" id="btn-confirm-cancel">取消</button>
+        <button class="btn btn-danger" id="btn-confirm-delete">确认删除</button>
       </div>
     </div>
   </div>

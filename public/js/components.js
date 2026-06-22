@@ -27,8 +27,8 @@ const components = {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column: 1/-1; height: 300px;">
           <div class="empty-icon">🔍</div>
-          <h2>No Results</h2>
-          <p>No memories match your current filters. Try a different search or type filter.</p>
+          <h2>无结果</h2>
+          <p>没有匹配的记忆，请尝试其他搜索词或类型筛选。</p>
         </div>`;
       return;
     }
@@ -38,10 +38,11 @@ const components = {
       card.className = 'memory-card';
       card.dataset.id = mem.id;
 
+      const typeNames = { project: '项目', user: '用户', feedback: '反馈', reference: '参考', unknown: '未知' };
       const typeClass = `badge-${mem.type}`;
-      const linkChips = (mem.resolvedLinks || []).map(link => {
+      const typeLabel = typeNames[mem.type] || mem.type;
         const cls = link.exists ? 'link-chip' : 'link-chip dangling';
-        const title = link.exists ? `Go to "${link.name}"` : `"${link.name}" not found (dangling)`;
+        const title = link.exists ? `跳转到 "${link.name}"` : `"${link.name}" 未找到（悬空链接）`;
         return `<span class="${cls}" data-link-id="${link.id || ''}" data-link-name="${escapeHtml(link.name)}" title="${escapeHtml(title)}">${escapeHtml(truncate(link.name, 25))}</span>`;
       }).join('');
 
@@ -53,7 +54,7 @@ const components = {
       card.innerHTML = `
         <div class="card-header">
           <span class="card-title">${escapeHtml(mem.name)}</span>
-          <span class="card-badge ${typeClass}">${escapeHtml(mem.type)}</span>
+          <span class="card-badge ${typeClass}">${escapeHtml(typeLabel)}</span>
         </div>
         ${mem.description ? `<div class="card-description">${escapeHtml(mem.description)}</div>` : ''}
         ${mem.preview ? `<div class="card-preview">${escapeHtml(mem.preview)}</div>` : ''}
@@ -99,14 +100,16 @@ const components = {
       list.innerHTML = `
         <div class="empty-state" style="height: 300px;">
           <div class="empty-icon">🔍</div>
-          <h2>No Results</h2>
-          <p>No memories match your current filters.</p>
+          <h2>无结果</h2>
+          <p>没有匹配当前筛选条件的记忆。</p>
         </div>`;
       return;
     }
 
     memories.forEach(mem => {
+      const typeNames = { project: '项目', user: '用户', feedback: '反馈', reference: '参考', unknown: '未知' };
       const typeClass = `badge-${mem.type}`;
+      const typeLabel = typeNames[mem.type] || mem.type;
       const displayPath = mem.filePath
         ? mem.filePath.replace(/\\/g, '/').split('/').slice(-3).join('/')
         : '';
@@ -115,7 +118,7 @@ const components = {
       item.className = 'list-item';
       item.dataset.id = mem.id;
       item.innerHTML = `
-        <span class="card-badge ${typeClass} list-item-badge">${escapeHtml(mem.type)}</span>
+        <span class="card-badge ${typeClass} list-item-badge">${escapeHtml(typeLabel)}</span>
         <span class="list-item-name">${escapeHtml(mem.name)}</span>
         <span class="list-item-desc">${escapeHtml(mem.description || '')}</span>
         <span class="list-item-path" title="${escapeHtml(mem.filePath || '')}">${escapeHtml(displayPath)}</span>
@@ -179,7 +182,7 @@ const components = {
 
     if (memory) {
       // Edit mode
-      title.textContent = 'Edit Memory';
+      title.textContent = '编辑记忆';
       nameInput.value = memory.name || '';
       descInput.value = memory.description || '';
       typeSelect.value = memory.type || 'project';
@@ -193,8 +196,8 @@ const components = {
       overlay.dataset.id = memory.id;
     } else {
       // Create mode
-      title.textContent = 'Create Memory';
-      fileInfo.textContent = 'New file will be created in the memory directory';
+      title.textContent = '创建记忆';
+      fileInfo.textContent = '将在记忆目录中创建新文件';
       deleteBtn.classList.add('hidden');
       overlay.dataset.mode = 'create';
       delete overlay.dataset.id;
@@ -285,7 +288,7 @@ const components = {
     try {
       this._graphData = await api.fetchGraph();
     } catch (err) {
-      components.showToast('Failed to load graph data', 'error');
+      components.showToast('图谱数据加载失败', 'error');
       return;
     }
 
@@ -298,7 +301,7 @@ const components = {
       ctx.fillStyle = '#94a3b8';
       ctx.font = '16px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('No memories to graph', canvas.width / 2, canvas.height / 2);
+      ctx.fillText('没有可图谱化的记忆', canvas.width / 2, canvas.height / 2);
       return;
     }
 

@@ -28,7 +28,7 @@ const app = {
         pathEl.title = this.state.config.memoryDir;
       }
     } catch (err) {
-      components.showToast('Failed to load config', 'error');
+      components.showToast('配置加载失败', 'error');
     }
   },
 
@@ -49,11 +49,12 @@ const app = {
 
       this.render(typeCounts);
     } catch (err) {
-      components.showToast('Failed to load memories: ' + err.message, 'error');
+      components.showToast('加载记忆失败: ' + err.message, 'error');
     }
   },
 
   render(typeCounts) {
+    this._lastTypeCounts = typeCounts;
     const { memories, activeType, viewMode } = this.state;
 
     // Filters
@@ -113,7 +114,7 @@ const app = {
       const memory = await api.getMemory(id);
       components.openModal(memory);
     } catch (err) {
-      components.showToast('Failed to load memory: ' + err.message, 'error');
+      components.showToast('加载记忆失败: ' + err.message, 'error');
     }
   },
 
@@ -124,7 +125,7 @@ const app = {
     const content = document.getElementById('input-content').value;
 
     if (!name) {
-      components.showToast('Name is required', 'error');
+      components.showToast('名称为必填项', 'error');
       return;
     }
 
@@ -134,16 +135,16 @@ const app = {
     try {
       if (mode === 'create') {
         await api.createMemory({ name, description, type, content });
-        components.showToast('Memory created!', 'success');
+        components.showToast('记忆创建成功！', 'success');
       } else {
         const id = overlay.dataset.id;
         await api.updateMemory(id, { name, description, type, content });
-        components.showToast('Memory updated!', 'success');
+        components.showToast('记忆更新成功！', 'success');
       }
       components.closeModal();
       await this.refresh();
     } catch (err) {
-      components.showToast('Save failed: ' + err.message, 'error');
+      components.showToast('保存失败: ' + err.message, 'error');
     }
   },
 
@@ -154,12 +155,12 @@ const app = {
 
     try {
       await api.deleteMemory(id);
-      components.showToast(`"${name}" deleted`, 'success');
+      components.showToast(`"${name}" 已删除`, 'success');
       components.closeModal();
       components.closeConfirmDelete();
       await this.refresh();
     } catch (err) {
-      components.showToast('Delete failed: ' + err.message, 'error');
+      components.showToast('删除失败: ' + err.message, 'error');
     }
   },
 
