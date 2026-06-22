@@ -61,11 +61,11 @@ const components = {
         ${mem.description ? `<div class="card-description">${escapeHtml(mem.description)}</div>` : ''}
         ${mem.preview ? `<div class="card-preview">${escapeHtml(mem.preview)}</div>` : ''}
         <div class="card-footer">
-          <div class="card-project" title="项目: ${escapeHtml(mem.projectName || '')}">
+          <div class="card-project" title="真实路径: ${escapeHtml(mem.projectPath || mem.projectDir || '')}">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="color:var(--accent);flex-shrink:0">
               <path d="M1 2.5A1.5 1.5 0 012.5 1h2.586a1.5 1.5 0 011.06.44L7.5 2.8a.5.5 0 00.38.19H9.5A1.5 1.5 0 0111 4.5v5A1.5 1.5 0 019.5 11h-7A1.5 1.5 0 011 9.5v-7z"/>
             </svg>
-            ${escapeHtml(mem.projectName || mem.projectDir || '')}
+            ${escapeHtml(mem.projectPath || mem.projectName || mem.projectDir || '')}
           </div>
           <div class="card-path" title="${escapeHtml(mem.filePath || '')}">
             <svg class="card-path-icon" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="color:var(--text-muted)">
@@ -173,9 +173,10 @@ const components = {
 
     projects.forEach(proj => {
       const active = activeProject === proj.projectDir ? ' active' : '';
+      const displayName = proj.projectPath || proj.projectName;
       html += `
-        <button class="type-chip${active}" data-project="${escapeHtml(proj.projectDir)}" title="${escapeHtml(proj.projectDir)}">
-          <span class="chip-label">${escapeHtml(truncate(proj.projectName, 18))}</span>
+        <button class="type-chip${active}" data-project="${escapeHtml(proj.projectDir)}" title="${escapeHtml(proj.projectPath || proj.projectDir)}">
+          <span class="chip-label">${escapeHtml(truncate(displayName, 22))}</span>
           <span class="chip-count">${proj.memoryCount}</span>
         </button>`;
     });
@@ -224,7 +225,7 @@ const components = {
       typeSelect.value = memory.type || 'project';
       contentInput.value = memory.content || '';
       fileInfo.innerHTML = `
-        <span style="color:var(--accent)">📁 ${escapeHtml(memory.projectName || '')}</span> &nbsp;
+        <span style="color:var(--accent)">📁 ${escapeHtml(memory.projectPath || memory.projectName || '')}</span> &nbsp;
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="vertical-align:middle"><path d="M2 1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V4.5a1 1 0 00-.293-.707L8.207 1.293A1 1 0 007.5 1H2z"/></svg>
         ${escapeHtml(memory.filePath || '')}
       `;
