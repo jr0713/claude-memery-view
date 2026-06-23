@@ -6,6 +6,7 @@ const api = {
     if (params.search) query.set('search', params.search);
     if (params.type && params.type !== 'all') query.set('type', params.type);
     if (params.project && params.project !== 'all') query.set('project', params.project);
+    if (params.sort) query.set('sort', params.sort);
     const qs = query.toString();
     const url = '/api/memories' + (qs ? '?' + qs : '');
     const res = await fetch(url);

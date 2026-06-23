@@ -5,6 +5,7 @@ const app = {
     memories: [],
     activeType: 'all',
     activeProject: 'all',
+    activeSort: 'time',
     searchTerm: '',
     viewMode: 'grid',
     selectedMemoryId: null,
@@ -50,6 +51,9 @@ const app = {
       if (this.state.searchTerm) params.search = this.state.searchTerm;
       if (this.state.activeProject && this.state.activeProject !== 'all') {
         params.project = this.state.activeProject;
+      }
+      if (this.state.activeSort) {
+        params.sort = this.state.activeSort;
       }
 
       const data = await api.fetchMemories(params);
@@ -251,6 +255,12 @@ const app = {
       const chip = e.target.closest('.type-chip');
       if (!chip) return;
       this.state.activeProject = chip.dataset.project;
+      this.refresh();
+    });
+
+    // Sort select
+    document.getElementById('sort-select').addEventListener('change', (e) => {
+      this.state.activeSort = e.target.value;
       this.refresh();
     });
 

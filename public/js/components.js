@@ -60,6 +60,10 @@ const components = {
         </div>
         ${mem.description ? `<div class="card-description">${escapeHtml(mem.description)}</div>` : ''}
         ${mem.preview ? `<div class="card-preview">${escapeHtml(mem.preview)}</div>` : ''}
+        <div class="card-time" title="修改: ${escapeHtml(formatTimeFull(mem.mtime))}${mem.birthtime ? '\\n创建: ' + escapeHtml(formatTimeFull(mem.birthtime)) : ''}">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><circle cx="5.5" cy="5.5" r="5"/><line x1="5.5" y1="3" x2="5.5" y2="5.5" stroke="var(--bg-secondary)" stroke-width="1.2"/><line x1="5.5" y1="5.5" x2="8" y2="6" stroke="var(--bg-secondary)" stroke-width="1.2"/></svg>
+          ${escapeHtml(formatTime(mem.mtime))}
+        </div>
         <div class="card-footer">
           <div class="card-project" title="真实路径: ${escapeHtml(mem.projectPath || mem.projectDir || '')}">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="color:var(--accent);flex-shrink:0">
